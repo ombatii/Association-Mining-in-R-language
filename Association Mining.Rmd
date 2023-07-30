@@ -1,0 +1,522 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Homework 9: Association Mining With R
+## What to Do:
+
+*1)	What does Association Mining mean to you? How does it fit within the broader milieu of Social Analytics?*
+Data mining approach that identifies links between different objects in a dataset is known as association mining. It entails determining patterns, correlations, or co-occurrences between objects based on their frequent co-occurrence in a collection.
+
+Association Regulation Mining in R is an unsupervised non-linear approach used to discover how things are related to one another. Frequent Mining displays which things exist in a transaction or relation together. Retailers, supermarket stores, and an online marketplace with a huge transactional database primarily use it. Similarly, every online social network, marketplace, or e-commerce website may predict what you will buy next by employing recommendation engines.The recommendations you receive on items or variables while checking out your order are the result of Association rule mining based on previous client data. 
+
+Association mining is useful in studying social relationships and interactions in the context of social analytics. It can be used in social network analysis, which investigates associations between individuals or entities. In a social media network, for example, association mining can help find communities, locate influential members, or detect patterns of user interactions.
+
+Association mining can also be utilized in sentiment analysis, which investigates associations between words or phrases and specific sentiments. Association mining can identify whether words or phrases are typically connected with good or negative feelings by analyzing huge text datasets, such as social media posts or customer reviews. This data can be useful for assessing public opinion, brand impression, and identifying upcoming trends.
+
+The following are some of the advantages of employing association mining in social analytics:
+
+* Increased insights: Association mining can assist firms in better understanding their clients and their behavior. This data can be used to make better products, services, and marketing efforts.
+
+* Improved decision-making: Association mining can assist organizations in making better decisions regarding resource allocation, consumer targeting, and the development of new products and services.
+
+* Efficiency gains: Association mining can assist firms in automating operations such as customer segmentation and marketing campaign optimization. This can liberate time and resources for other pursuits.
+
+
+
+
+
+
+
+
+*2)	What are the main techniques for Association Mining that you have learned about this week? (Hint: There are a total of 5). For each technique:*
+*a.	Briefly describe the technique in your own words.*
+1. Topic modeling via  Cluster analysis: It is a statistical procedure that groups objects such that those objects within a group are more similar than they are to objects in other group.In  R it is done using cluster package.
+
+2. Topic modeling via  Latent Dirichlet Allocation : It is a bayasesian approach that presupposes topic that exist beyond the set of documents analyzed and infers the topics based on the distributions of terms observed accross documents.
+
+3. Topic modeling via Social Networking Term analysis: This method combines topic modeling approaches with social network analysis to find the underlying subjects in a dataset by taking into account the relationships between terms. This methodology seeks to uncover significant topic structures within the data by exploiting the connections and interactions between terms, such as co-occurrence patterns or semantic links. It is feasible to capture the interconnection of phrases and potentially disclose insights into the thematic arrangement of the dataset by incorporating social network analysis tools, leading to a more comprehensive understanding of the issues discussed.
+
+4. Topic modeling using term relational class analysis:
+To find themes, this topic modeling methodology use relational class analysis, a statistical method that evaluates the relationships between items in a dataset. Instead of evaluating individual terms in isolation, this method takes into account the terms' relational structure, such as co-occurrence patterns or relationships between terms. It is feasible to infer latent topics within the dataset by recognizing patterns and dependencies among the items. This method seeks to capture term linkages and dependencies, resulting in a more accurate and nuanced portrayal of the underlying issues.
+
+
+
+*b.	Discuss for what purpose you would choose each technique. Conceptually compare-and-contrast the techniques with each other in terms of what they are trying to accomplish/explain.*
+
+1. Topic modeling via  Cluster analysis:
+Cluster analysis is beneficial when you want to group together comparable items or documents based on their qualities. It can aid in the identification of separate groups of materials that share common topics or ideas. Cluster analysis is appropriate when defining broad topic areas or sorting massive datasets into manageable groups is the goal.
+
+2. Topic modeling via  Latent Dirichlet Allocation :
+Latent Dirichlet Allocation (LDA) is a probabilistic technique that infers underlying subjects from observable word distributions across documents. When the goal is to find latent topics within a dataset and understand how documents are composed of these subjects, LDA is appropriate. It enables for a more granular degree of topic analysis and the identification of the most likely themes for each document.
+
+3. Topic modeling via Social Networking Term analysis:
+Social Media Networking Term analysis considers the links between terms and combines topic modeling with social network analysis. This method is useful for investigating how concepts are related and how their relationships help to a better knowledge of issues. It can provide insights into the dataset's thematic arrangement, especially where term associations are important in understanding the themes.
+
+4. Topic modeling using term relational class analysis:
+Term relational class analysis investigates the links and dependencies between words, employing statistical techniques to reveal hidden subjects. It is important when the goal is to capture the interdependencies and patterns between terms, as well as how they contribute to the broader subject structure. When exploring the links between concepts, this technique can provide a more detailed portrayal of issues.
+
+
+
+*c.	If you have encountered any of these techniques in other contexts/weeks in this course, explain how this week’s usage of the technique(s) compares (or contrasts) with the usage of the technique(s) in those prior weeks.*
+The techniques used this week to find topics such as social networking term analysis and term relational class analysis, broaden the scope by integrating new aspects, such as the links between words and the relational structure of terms. By considering the links and dependencies between concepts, these strategies enable a more thorough understanding of issues, which can lead to richer insights and a more nuanced portrayal of the underlying themes.
+
+
+
+
+
+*3)	In R, using the WheresRey dataset example demonstrated in the Unit 9 Asynchronous content, work through all of these 5 Association Mining techniques. The R code for this work-through is provided to you in the textbook as well as uploaded to the Unit 9 Code folder in an RStudio script file for you (NOTE: The R code in the provided RStudio script file is more detailed, but the textbook contains more detailed explanations of the steps… so, please use both resources in conjunction). Please work through these from scratch, following along on your own, in an empty R script file. In other words, type out each line of code, instead of copying-and-pasting what is already provided to you.* 
+
+
+
+## Importing packages used in this project
+```{r}
+library(tm)
+library(cluster)
+library(topicmodels)
+library(igraph)
+library(RCA)
+```
+
+I have imported various libraries that will help in Association mining.
+
+## Word-Pair Analysis
+Word-pair analysis is a technique used to identify and analyze relationships between pairs of words in a text corpus. 
+
+### Read the dataset and create a Corpus
+```{r}
+ReyPosts = read.csv('WheresRey.csv', header = T)
+```
+
+###  Display the contents of the ReyPosts dataset in a tabular format
+```{r}
+View(as.data.frame(ReyPosts))
+
+# Top rows
+head(as.data.frame(ReyPosts))
+```
+
+### Creating a Corpus: a data structure used for text analysis in the 'tm' package
+```{r}
+ReyCorp = Corpus(VectorSource(ReyPosts$Posts))
+```
+
+
+### Examine the contents of the Corpus.
+```{r}
+inspect(ReyCorp)
+```
+
+
+
+## Preprocess the data:
+These functions provide useful operations for manipulating and cleaning text data by removing unwanted text, replacing patterns, and converting non-ASCII characters to ASCII equivalents.
+
+
+### First create two custom functions to remove unwanted text and another to replace one text with another
+
+```{r}
+StripString = content_transformer(function(x, pattern) gsub(pattern, '', x))
+SearchReplace = content_transformer(function(x, pattern1, pattern2) gsub(pattern1, pattern2, x))
+```
+
+### Create custom function to retain only ASCII characters
+```{r}
+latin2ascii = content_transformer(function(x) iconv(x, 'latin1', 'ascii', sub = ''))
+```
+
+### Now perform preprocessing tasks:
+```{r}
+suppressWarnings({
+  
+#ReyCorp = tm_map(ReyCorp, content_transformer(tolower))
+ReyCorp = tm_map(ReyCorp, removePunctuation)
+ReyCorp = tm_map(ReyCorp, removeNumbers)
+#ReyCorp = tm_map(ReyCorp, stripWhitespace)
+#ReyCorp = tm_map(ReyCorp, StripString, 'http://[[a1num*]]/')
+#ReyCorp = tm_map(ReyCorp, StripString, '[\r\n]')
+#ReyCorp = tm_map(ReyCorp, StripString, '[\t]')
+ReyCorp = tm_map(ReyCorp, latin2ascii)
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'theforceawakens', 'the force awakens')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'merchsexismproblem', 'merch sexism problem')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'highlightsdearthfemaletoyhtml', 'highlights dearth female toy')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'forceawakens', 'force awakens')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'arewereallygoingtostart', 'are we really going to start')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'makers', 'maker')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'highlights', 'highlight')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'figures', 'figure')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'merchandise', 'merch')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'merchs', 'merch')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'shes', 'she is')
+ReyCorp = tm_map(ReyCorp, removeWords, stopwords('english'))
+ReyCorp = tm_map(ReyCorp, StripString, 'http*')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'merchsexismproblem', 'merch sexism problem')
+ReyCorp = tm_map(ReyCorp, StripString, 'www*')
+ReyCorp = tm_map(ReyCorp, SearchReplace, 'merch', 'merchandise')
+ReyCorp = tm_map(ReyCorp, StripString, '*com*')
+
+})
+```
+
+### Create TDM from preprocessed corpus
+```{r}
+ReyTDM = TermDocumentMatrix(ReyCorp)
+View(data.frame(as.matrix(ReyTDM)))
+head(data.frame(as.matrix(ReyTDM)))
+```
+
+
+### Find words that co-occur with the word whereisrey with a correlation coefficient of at least 20%:
+```{r}
+findAssocs(ReyTDM, 'whereisrey', 0.20)
+as.data.frame(findAssocs(ReyTDM, 'whereisrey', 0.20))
+```
+
+
+## Creating semantic networks around the term whereisrey:
+### Create TDM with 95% sparsity:
+We create a text-document Matrix named TDM and set matrix sparsity to 95% to minimize the chance that rarely occuring terms spuriously appear to be correlated.
+
+```{r}
+ReyTDM = removeSparseTerms(ReyTDM, 0.95)
+```
+
+
+## Choose focal term and call it term:
+we create an edge list
+```{r}
+term = 'whereisrey'
+Reynet1 = as.data.frame(findAssocs(ReyTDM, term, 0.20))
+Reynet1 = cbind(term, row.names(Reynet1), Reynet1)
+colnames(Reynet1) = c('word1', 'word2', 'freq')
+rownames(Reynet1) = NULL
+```
+
+
+## Set Reynet1 to a new data frame Reynet2. In Reynet2, we will accumulate all edges that are formed by the associated word for each correlated word for whereisrey:
+```{r}
+Reynet2 = Reynet1
+
+for (i in 1:nrow(Reynet1))
+{term = Reynet1$word2[i]
+Reynetterm = as.data.frame(findAssocs(ReyTDM, term, 0.20))
+Reynetterm = cbind(term, rownames(Reynetterm), Reynetterm)
+colnames(Reynetterm) = c('word1', 'word2', 'freq')
+rownames(Reynetterm) = NULL
+Reynet2 = as.data.frame(rbind(Reynet2, Reynetterm))}
+
+View(Reynet2)
+head(Reynet2)
+```
+We use the second data frame to accumulate the edge s extracted by each findAssocs()call.
+
+## Reynet2 is the edgelist for the semantic network around the term whereisrey going up to two links out from the focal term.
+
+## To visualize the Reynet2 edgelist as a semantic network graph:
+```{r}
+Reynet2Graph = graph_from_data_frame(Reynet2, directed = F)
+Reynet2Graph = simplify(Reynet2Graph, remove.multiple = T, remove.loops = T)
+plot(Reynet2Graph)
+```
+This code converts a data frame (Reynet2) into a graph representation, simplifies the graph by removing multiple edges and self-loops, and finally visualizes the resulting graph using a plot.
+
+# TOPIC MODELING
+## CLUSTER ANALYSIS: A STATISTICAL APPROACH TO TOPIC MODELING
+
+### First, compute the distances between every pair of terms in the TDM, based on various methods, in this case the euclidean method, minimizing sum of squared distances between the term vectors in the TDM:
+```{r}
+ReyDist = dist(ReyTDM, method = 'euclidean')
+```
+
+### Create clustering solution, where distances in the distance matrix are grouped into different groups based on similarity/cutoffs.
+####  First we do hierarchical clustering...
+```{r}
+ReyHClust = hclust(d=ReyDist, method = 'ward.D')
+```
+
+
+#### Plot clustering solution
+```{r}
+plot(ReyHClust)
+plot(ReyHClust, yaxt = 'n', xlab = '', ylab = '', hang = 1, main = '', sub = '', cex = 1.75)
+rect.hclust(ReyHClust, k=6, border = 'blue')
+```
+The dendrogram clusters the twenty terms.
+
+#### To find what terms belong to what clusters:
+```{r}
+ReyTopics = cutree(ReyHClust, k=6)
+ReyTopics = as.data.frame(ReyTopics)
+View(ReyTopics)
+ReyTopics
+```
+
+Based on the output the following clusters can be observed:
+Cluster 1:
+- female
+- toy
+- merchandise
+- sexism
+- problem
+
+Cluster 2:
+- set
+- target
+- girl
+- hasbro
+- disney
+- the
+- nversation
+- theforceawakens
+- view
+- character
+- main
+- shes
+- black
+
+Cluster 3:
+- starwars
+
+Cluster 4:
+- whereisrey
+
+Cluster 5:
+- rey
+
+Cluster 6:
+- action
+- figure
+
+The clustering technique grouped the variables according to their similarity, implying that variables in the same cluster share similar themes. 
+
+#### Next we do k-means clustering:
+```{r}
+ReyKClust = kmeans(ReyDist, 6)
+ReyKTopics = as.data.frame(ReyKClust$cluster)
+```
+
+
+#### Average incidence of each term in each cluster
+```{r}
+ReyKClust$centers
+```
+The output represents the average incidence of each term in each cluster. Each row corresponds to a cluster, and each column represents a term.
+
+Based on the values in the relevant rows, the average incidence of terms in the other clusters can be calculated.
+
+The values represent the term's average occurrence or frequency inside the related cluster. The higher the value, the more frequently the term appears on average in that cluster.
+
+
+#### Associating documents to clusters:
+```{r}
+DistancestoCenters = as.data.frame(as.matrix(dist(rbind(ReyKClust$centers[1,], t(as.matrix(ReyTDM))))))[1, 2:(ncol(ReyTDM)+1)]
+
+for (i in 2:6)
+{DistancestoCenters = cbind(DistancestoCenters, as.data.frame(as.matrix(dist(rbind(ReyKClust$centers[1,], t(as.matrix(ReyTDM)))))))[1, 2:(ncol(ReyTDM)+1)]}
+colnames(DistancestoCenters) = c('DistC1', 'DistC2', 'DistC3', 'DistC4', 'DistC5', 'DistC6')
+View(DistancestoCenters)
+DistancestoCenters
+```
+For each cluster, the output shows the distances from the first center to each document in ReyTDM. Each value denotes the distance between the center and a particular document. Only the distances to the first center are indicated in this case. The values represent the degree of similarity or proximity between the documents and the first center of each cluster. Smaller distances represent closer resemblance, while higher distances represent greater dissimilarity.
+
+
+## LDA - Another statistical approach to topic modeling
+### This we need to begin with the DTM. To obtain the latent distribution of topics across documents based on the observed distribution of terms across documents.
+### We generate a DTM that is not sparse so that all documents have at least one term in them:
+```{r}
+ReyDTMLDA = DocumentTermMatrix(ReyCorp)
+```
+
+### Then, apply the LDA approach to the DTM to surface topics within the documents. We specify the number of topics we want to surface. We can use one of two methods for topic surfacing... one that is less efficinet but more complete than the other... the Gibbs method; we use it here because the corpus is not too large.
+
+```{r}
+ReyTopicsLDA = LDA(ReyDTMLDA, method = 'Gibbs', k = 6, control = list(seed=1234))
+View(ReyTopicsLDA)
+```
+
+
+## To identify the terms assigned to different topics, let's say we want the top 10 terms assigned to each topic:
+```{r}
+ReyTermsTopicsLDA = terms(ReyTopicsLDA, 10)
+View(ReyTermsTopicsLDA)
+```
+
+
+## To obtain the density of topics discussed in documents:
+```{r}
+ReyTopicsLDA@alpha
+```
+The result number of 8.333333 shows that the LDA model anticipates that documents relating to the Rey theme will comprise 8 to 9 topics on average. This means that the model assumes the documents will cover a wide range of topics.
+
+## To obtain the density of each term within each topic:
+```{r}
+ReyTopicsLDA@beta
+```
+The code's output is a matrix of beta values for the topics in the Latent Dirichlet Allocation (LDA) model trained on Rey-related objects.In LDA, beta is a hyperparameter that determines how words are distributed inside each subject.Each topic's word probabilities are represented by the beta matrix.
+The output contains a portion of the beta matrix, with rows indicating subjects and columns representing words. Each value in the matrix represents the likelihood of a single word appearing in a specific topic. Due to the vast number of terms and subjects, however, only a subset of the matrix is shown. The message "[ reached getOption("max.print") -- omitted 6 rows ]" indicates that there are more rows in the matrix that are not shown.
+
+## Put the density values in a data frame
+```{r}
+ReyTermTopicDensity = data.frame(rownames(t(as.matrix(ReyDTMLDA))), t(as.matrix(ReyTopicsLDA@beta)))
+View(ReyTermTopicDensity)
+```
+
+
+## To see the density of each topic within each document:
+```{r}
+ReyTopicDocDensity = data.frame(rownames(as.matrix(ReyDTMLDA)), as.matrix(ReyTopicsLDA@gamma))
+View(ReyTopicDocDensity)
+```
+
+
+## Based on the densities of topics across documents, LDA assigns each document to a single topic that is the most dense in that document, on a first come first served basis in case of a tie:
+```{r}
+topics(ReyTopicsLDA)
+as.data.frame(topics(ReyTopicsLDA))
+head(as.data.frame(topics(ReyTopicsLDA)), 10)
+```
+
+
+
+# Topic Modeling Using SNA
+```{r}
+library(igraph)
+```
+
+## create adjacency matrix from TDM x t(TDM)
+```{r}
+ReyCooccurMatrix=as.matrix(ReyTDM)%*%t(as.matrix(ReyTDM))
+```
+
+
+## create simplified graph data object from adjacency matrix
+```{r}
+ReyGraph=simplify(graph.adjacency(ReyCooccurMatrix, weighted=T, mode='undirected'))
+V(ReyGraph)$color='yellow'			#plot the term graph
+plot(ReyGraph, layout=layout.gem(ReyGraph), vertex.shape='sphere')
+```
+
+```{r}
+  
+evcent(ReyGraph)$vector 			#determine the centrality of terms to conversation
+mc=multilevel.community(ReyGraph) 		#discover term groupings via community analysis
+wc=walktrap.community(ReyGraph)
+  
+```
+
+```{r}
+cbind(mc$names,mc$membership)			#which terms were assigned to different topics
+  #plot the different topics
+plot(mc, ReyGraph, vertex.shape='sphere',layout=layout.davidson.harel, vertex.label.color= 'black')
+title('Topics',cex.main=2,col.main='black')	#slap a title on it
+```
+
+  
+## create a correlation matrix from t(TDM)
+```{r}
+ReyCorrel=cor(as.matrix(t(ReyTDM)))
+ReyCorrel[ReyCorrel<0]=0			#set negative correlations=0 'coz edges can't have negative weight
+```
+
+## create simplified, weighted graph data object from adjacency matrix
+```{r}
+ReyGraph=simplify(graph.adjacency(ReyCorrel, weighted=T, mode='undirected'))
+#plot
+plot(ReyGraph, layout=layout.gem(ReyGraph), vertex.shape='sphere',vertex.label.color='black')
+```
+
+  
+```{r}
+evcent(ReyGraph)$vector				#determine the centrality of the terms to conversation
+mc=multilevel.community(ReyGraph)		#discover term groupings via community analysis
+```
+
+#plot the different topics
+```{r}
+plot(mc, ReyGraph, vertex.shape='sphere',layout=layout.davidson.harel, edge.curved=T, vertex.label.color= 'black')
+title('Topics',cex.main=2,col.main='black')
+```
+
+# Topic Modeling using RCA
+```{r}
+#load the RCA package
+library(RCA)
+```
+
+## create a DTM with values ranging from 0 to 1
+```{r}
+#ReyDTM=DocumentTermMatrix(ReyCorp, control=list(removePunctuation=T, removeNumbers=T,
+                                                #  weighting=weightTfIdf))
+  
+#rca=RCA(as.matrix(ReyDTM), alpha=0.05)		#run RCA; DO NOT RUN THIS - TOO RESOURCE INTENSIVE
+#summary(rca)					#inspect output
+#rca$membership					#check membership vector
+```
+
+I did not run this codes because they required more coumputing power than my pc have. 
+
+  
+## create a data frame with the membership vector and the DTM
+```{r}
+#ReyMembers=as.data.frame(cbind(as.matrix(ReyDTM),RCA=rca$membership))
+```
+
+## obtain the terms associated with cluster 1 and cluster 777
+```{r}
+#ReyMembers = subset(ReyMembers, RCA=="1" | RCA=="777")
+```
+
+  
+#obtain the average weighted frequency of the first 20 terms for 
+#each cluster
+```{r}
+#round(aggregate(ReyMembers[1:20], by=list(ReyMembers$RCA), FUN=mean), 4)
+```
+
+  
+#plot RCA output as heat map
+```{r}
+#plot(rca, module=1, colorblind = FALSE, heat_labels = TRUE) 
+```
+ 
+*4)	Explain the overall logic of what the R code in #3 above is doing by way of conducting each of the Association Mining techniques. In other words, provide some “big picture” conceptual grounding for the overall flow of the set of code leading you from start to finish in your Association Mining work.*
+The overall logic of the R code provided is to perform Association Mining techniques, specifically Word-Pair Analysis and Topic Modeling, on a dataset called "ReyPosts". The code begins by importing the libraries required for text mining, clustering, topic modeling, and graph analysis.
+
+In the Word-Pair Analysis section, the code reads the dataset and creates a Corpus, which is a data structure used for text analysis. After that, the text data is preprocessed, with punctuation, digits, non-ASCII characters, and stopwords removed. The preprocessed corpus is converted into a TermDocumentMatrix (TDM), and word associations are discovered using the findAssocs function.
+
+The code is designed to build a semantic network around a single term ("whereisrey"). The TDM is then processed further to remove sparse terms, and relationships between the target phrase and other correlated words up to two links away are discovered. The generated associations are viewed as a semantic network graph and expressed as an edgelist.
+
+Then the code then uses Cluster Analysis and Latent Dirichlet Allocation (LDA) to do Topic Modeling. The TDM is subjected to cluster analysis to group terms according on similarity, and the clusters are displayed using a dendrogram. K-means clustering is also used to determine the average frequency of phrases in each cluster. The top phrases allocated to each topic are extracted once LDA has identified latent topics within the documents. 
+
+Finally, based on the density of subjects inside each document, the code allocates each document to a single topic. The result provides the subjects allocated to each document.
+
+
+
+
+
+
+
+*5)	For each of the Association Mining techniques that you executed in #3 above, discuss at least one actionable insight that you may have derived from the corresponding output. Your response to this question, therefore, should include at least 5 distinct actionable insights – one corresponding to the output from each of the 5 Association Mining techniques that you would have performed in response to Question #3.* 
+
+1.Cluster 1 contains words such as "female," "toy," "merchandise," "sexism," and "problem." These phrases appear to be related to gender representation difficulties, as well as debates or conversations around female characters in toys and commerce.
+
+2.Cluster 2: Words in this cluster include "set," "target," "girl," "hasbro," "Disney," and others. These terms are likely to be associated with debates or topics regarding specific sets or items aimed at females, most likely in the context of Hasbro, Disney, and maybe the film "Star Wars: The Force Awakens." The use of the words "main," "character," and "shes" suggests an emphasis on a certain female figure.
+
+3.Cluster 3 contains the single phrase "starwars," indicating conversations or references to the "Star Wars" series in general.
+
+
+4.Cluster 4 includes the term "whereisrey," which could be a phrase related with questions or conversations regarding the "Star Wars" character Rey. It could allude to the desire for Rey to be more visible or present in specific situations.
+
+5.Cluster 5: This cluster contains the phrase "rey," which most likely relates to the "Star Wars" character Rey.
+
+6.Cluster 6 includes the phrases "action" and "figure," which imply discussions or topics about action figures, maybe incorporating Rey or other characters.
+
+
+7.The terms "merchandise" and "sexism" have high centrality scores, indicating that they are important in the discussion. This implies that there may be concerns or discussions about how gender is portrayed and potential biases in items relating to the analyzed topic.
+To take action, it would be beneficial to study the specific complaints mentioned about sexism in merchandise and to grasp the audience's thoughts and attitudes. This could include completing surveys, getting customer feedback, or participating in conversations on relevant media. It is possible to improve customer satisfaction, brand reputation, and promote diversity and equality in the business by addressing these concerns and striving toward more inclusive and equitable merchandise.
+
+
+
